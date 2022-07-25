@@ -52,10 +52,10 @@ export class Todos extends React.PureComponent<TodosProps, TodosState> {
         dueDate
       })
       this.setState({
-        todos: [...this.state.todos, newTodo],
+        todos: [...this.state.todos,newTodo],
         newTodoName: ''
       })
-    } catch {
+    } catch{
       alert('Todo creation failed')
     }
   }
@@ -85,7 +85,7 @@ export class Todos extends React.PureComponent<TodosProps, TodosState> {
         })
       })
     } catch {
-      alert('Todo deletion failed')
+      alert('Todo completion failed')
     }
   }
 
@@ -158,6 +158,7 @@ export class Todos extends React.PureComponent<TodosProps, TodosState> {
   }
 
   renderTodosList() {
+    console.log('Before rendering',this.state.todos)
     return (
       <Grid padded>
         {this.state.todos.map((todo, pos) => {
