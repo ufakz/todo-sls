@@ -22,7 +22,7 @@ provider:
   # ${self:provider.environment.ATTACHMENTS_S3_BUCKET}
   environment:
     TODOS_TABLE: Todos-${self:provider.stage}
-    TODOS_CREATED_AT_INDEX: CreatedAtIndex
+    TODOS_USER_ID_INDEX: UserIdIndex
     ATTACHMENTS_S3_BUCKET: ufakz-serverless-c4-todo-images-${self:provider.stage}
     SIGNED_URL_EXPIRATION: 300
     AUTH_O_JWKS_URL: https://dev-y8wh5ev9.us.auth0.com/.well-known/jwks.json
@@ -64,7 +64,7 @@ functions:
       - Effect: Allow
         Action:
           - dynamodb:Query
-        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}/index/${self:provider.environment.TODOS_CREATED_AT_INDEX}
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}/index/${self:provider.environment.TODOS_USER_ID_INDEX}
       - Effect: Allow
         Action:
         - xray:PutTraceSegments
@@ -206,14 +206,12 @@ resources:
           - AttributeName: createdAt
             AttributeType: S
         KeySchema:
-          - AttributeName: userId
-            KeyType: HASH
           - AttributeName: todoId
-            KeyType: RANGE
+            KeyType: HASH
         BillingMode: PAY_PER_REQUEST
         TableName: ${self:provider.environment.TODOS_TABLE}
-        LocalSecondaryIndexes:
-          - IndexName: ${self:provider.environment.TODOS_CREATED_AT_INDEX}
+        GlobalSecondaryIndexes:
+          - IndexName: ${self:provider.environment.TODOS_USER_ID_INDEX}
             KeySchema:
               - AttributeName: userId
                 KeyType: HASH
@@ -254,6 +252,8 @@ resources:
             - Sid: PublicReadForGetBucketObjects
               Effect: Allow
               Principal: '*'
-              Action: 's3:GetObject'
+              Action: 
+                - 's3:GetObject'
+                - 's3:PutObject'
               Resource: 'arn:aws:s3:::${self:provider.environment.ATTACHMENTS_S3_BUCKET}/*'
         Bucket: !Ref AttachmentsBucket

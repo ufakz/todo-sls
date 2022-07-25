@@ -15,7 +15,7 @@ export class TodosAccess {
     constructor(
         private readonly docClient: DocumentClient = new XAWS.DynamoDB.DocumentClient(),
         private readonly todosTable = process.env.TODOS_TABLE,
-        private readonly todoIndex = process.env.TODOS_CREATED_AT_INDEX,
+        private readonly todoIndex = process.env.TODOS_USER_ID_INDEX,
     ) { }
 
 
@@ -75,7 +75,10 @@ export class TodosAccess {
             Key: {
                 todoId
             },
-            UpdateExpression: 'set name = :name, dueDate = :dueDate, done = :done',
+            UpdateExpression: 'set #name = :name, dueDate = :dueDate, done = :done',
+            ExpressionAttributeNames: {
+                "#name": "name"
+            },
             ExpressionAttributeValues: {
                 ":name": todoUpdate.name,
                 ":dueDate": todoUpdate.dueDate,
